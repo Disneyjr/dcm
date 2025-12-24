@@ -14,7 +14,9 @@ import (
 
 func findDCMBinary() (string, error) {
 	baseName := "dcm"
-
+	if runtime.GOOS == "windows" {
+		baseName = "dcm.exe"
+	}
 	if _, err := os.Stat(baseName); err == nil {
 		abs, _ := filepath.Abs(baseName)
 		return abs, nil
