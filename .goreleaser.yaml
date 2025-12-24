@@ -19,12 +19,29 @@ builds:
       - amd64
       - arm64
 
+  - id: install
+    main: ./cmd/install.go
+    binary: install
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
 archives:
-  - format: tar.gz
+  - id: dcm
+    format: tar.gz
     format_overrides:
       - goos: windows
         format: zip
     name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}'
+    builds:
+      - dcm
+      - install
     files:
       - LICENSE
       - README.md
