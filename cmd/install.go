@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Disneyjr/dcm/utils"
+	"github.com/Disneyjr/dcm/utils/messages"
 )
 
 func findDCMBinary() (string, error) {
@@ -142,10 +143,9 @@ func verifyInstallation() error {
 
 	return nil
 }
-
 func main() {
 	fmt.Printf("\n%s DCM - Instalador Global\n\n", utils.Colorize("cyan", "📌"))
-
+	defer messages.ExitMessage()
 	sourcePath, err := findDCMBinary()
 	if err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
@@ -174,14 +174,9 @@ func main() {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		fmt.Printf("\n%s Tente executar manualmente:\n", utils.Colorize("yellow", "💡"))
 		fmt.Printf("  Linux/macOS: sudo mv dcm /usr/local/bin/ && sudo chmod +x /usr/local/bin/dcm\n")
-		fmt.Printf("  Windows: Move dcm.exe para C:\\Windows\\System32\\ (execute como Admin)\n\n")
+		fmt.Printf("  Windows: Mova dcm.exe para C:\\Windows\\System32\\ (execute como Admin)\n\n")
 		os.Exit(1)
 	}
 
-	fmt.Printf("\n%s Instalação concluída com sucesso!\n", utils.Colorize("green", "🎉"))
-	fmt.Printf("%s Você pode usar 'dcm' em qualquer terminal/pasta.\n\n", utils.Colorize("green", "✨"))
-	fmt.Printf("Exemplo:\n")
-	fmt.Printf("  dcm list\n")
-	fmt.Printf("  dcm up dev\n")
-	fmt.Printf("  dcm version\n\n")
+	messages.InstallSuccessful()
 }

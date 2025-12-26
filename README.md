@@ -23,7 +23,6 @@ dcm up dev
 
 - 🚀 **Comando único** - Inicie todos os serviços de uma vez
 - 📦 **Sem dependências** - Binário standalone
-- 🔀 **Profiles** - Configure variações do mesmo serviço
 - 🎯 **Grupos** - Organize serviços em combinações
 - 🖥️ **Cross-platform** - Linux, macOS, Windows
 
@@ -44,7 +43,7 @@ double-click install.exe
 
 ### 2. Configurar
 
-Crie `services.json` na raiz do projeto:
+Crie `workspace.json` na raiz do projeto:
 
 ```json
 {
@@ -73,12 +72,6 @@ dcm down      # Parar tudo
 **Iniciar um grupo:**
 ```bash
 dcm up dev          # Todos os serviços do grupo 'dev'
-```
-
-**Iniciar um serviço específico:**
-```bash
-dcm up api          # Apenas API com profile padrão
-dcm up api test     # API com profile 'test'
 ```
 
 **Gerenciar serviços:**
