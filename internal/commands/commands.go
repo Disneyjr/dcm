@@ -372,7 +372,7 @@ func runCommand(projectPath string, command string, args []string, parallel bool
 	return nil
 }
 
-func InstallLinuxMacOS(sourcePath string) error {
+func InstallLinuxMacOS(sourcePath string) (string, error) {
 	fmt.Printf("%s Detectado: %s\n", utils.Colorize("cyan", "🔍"), utils.GetSystemInfo())
 	fmt.Printf("%s Instalando DCM globalmente...\n\n", utils.Colorize("blue", "🚀"))
 
@@ -382,7 +382,7 @@ func InstallLinuxMacOS(sourcePath string) error {
 
 	srcFile, err := os.Open(sourcePath)
 	if err != nil {
-		return fmt.Errorf("erro ao abrir arquivo: %w", err)
+		return "", fmt.Errorf("erro ao abrir arquivo: %w", err)
 	}
 	defer srcFile.Close()
 
@@ -396,45 +396,45 @@ func InstallLinuxMacOS(sourcePath string) error {
 
 		stdinPipe, err := cmd.StdinPipe()
 		if err != nil {
-			return fmt.Errorf("erro ao criar pipe: %w", err)
+			return "", fmt.Errorf("erro ao criar pipe: %w", err)
 		}
 
 		if err := cmd.Start(); err != nil {
-			return fmt.Errorf("erro ao executar sudo: %w", err)
+			return "", fmt.Errorf("erro ao executar sudo: %w", err)
 		}
 
 		if _, err := io.Copy(stdinPipe, srcFile); err != nil {
-			return fmt.Errorf("erro ao copiar arquivo: %w", err)
+			return "", fmt.Errorf("erro ao copiar arquivo: %w", err)
 		}
 
 		stdinPipe.Close()
 
 		if err := cmd.Wait(); err != nil {
-			return fmt.Errorf("erro ao finalizar cópia: %w", err)
+			return "", fmt.Errorf("erro ao finalizar cópia: %w", err)
 		}
 
 		fmt.Printf("%s Ajustando permissões...\n", utils.Colorize("cyan", "🔒"))
 		chmodCmd := exec.Command("sudo", "chmod", "+x", targetPath)
 		if err := chmodCmd.Run(); err != nil {
-			return fmt.Errorf("erro ao ajustar permissões: %w", err)
+			return "", fmt.Errorf("erro ao ajustar permissões: %w", err)
 		}
 	} else {
 		defer dstFile.Close()
 
 		if _, err := io.Copy(dstFile, srcFile); err != nil {
-			return fmt.Errorf("erro ao copiar conteúdo: %w", err)
+			return "", fmt.Errorf("erro ao copiar conteúdo: %w", err)
 		}
 
 		fmt.Printf("%s Ajustando permissões...\n", utils.Colorize("cyan", "🔒"))
 		if err := os.Chmod(targetPath, 0755); err != nil {
-			return fmt.Errorf("erro ao ajustar permissões: %w", err)
+			return "", fmt.Errorf("erro ao ajustar permissões: %w", err)
 		}
 	}
 
-	return nil
+	return targetPath, nil
 }
 
-func InstallWindows(sourcePath string) error {
+func InstallWindows(sourcePath string) (string, error) {
 	fmt.Printf("%s Detectado: %s\n", utils.Colorize("cyan", "🔍"), utils.GetSystemInfo())
 	fmt.Printf("%s Instalando DCM globalmente...\n\n", utils.Colorize("blue", "🚀"))
 
@@ -444,47 +444,53 @@ func InstallWindows(sourcePath string) error {
 
 	srcFile, err := os.Open(sourcePath)
 	if err != nil {
-		return fmt.Errorf("erro ao abrir arquivo: %w", err)
+		return "", fmt.Errorf("erro ao abrir arquivo: %w", err)
 	}
 	defer srcFile.Close()
 
 	dstFile, err := os.Create(targetPath)
 	if err != nil {
-		return fmt.Errorf("erro ao criar destino (pode precisar executar como Admin): %w", err)
+		return "", fmt.Errorf("erro ao criar destino (pode precisar executar como Admin): %w", err)
 	}
 	defer dstFile.Close()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		return fmt.Errorf("erro ao copiar: %w", err)
+		return "", fmt.Errorf("erro ao copiar: %w", err)
 	}
 
-	return nil
+	return targetPath, nil
 }
 
-func VerifyInstallation() error {
+func VerifyInstallation(installedPath string) error {
 	fmt.Printf("\n%s Validando instalação...\n", utils.Colorize("cyan", "✓"))
 
-	cmd := exec.Command("which", "dcm")
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("where", "dcm.exe")
+	if installedPath == "" {
+		cmdSearch := exec.Command("which", "dcm")
+		if runtime.GOOS == "windows" {
+			cmdSearch = exec.Command("where", "dcm.exe")
+		}
+
+		output, err := cmdSearch.Output()
+		if err != nil {
+			return fmt.Errorf("DCM não encontrado no PATH")
+		}
+		installedPath = strings.TrimSpace(string(output))
+		// 'where' can return multiple paths on Windows, use the first one
+		if runtime.GOOS == "windows" {
+			paths := strings.Split(installedPath, "\r\n")
+			if len(paths) > 0 {
+				installedPath = paths[0]
+			}
+		}
 	}
 
-	output, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("DCM não encontrado no PATH")
-	}
-
-	installedPath := strings.TrimSpace(string(output))
 	fmt.Printf("%s Encontrado em: %s\n", utils.Colorize("green", "✅"), installedPath)
 
-	testCmd := exec.Command("dcm", "version")
-	if runtime.GOOS == "windows" {
-		testCmd = exec.Command("dcm.exe", "version")
-	}
-
-	output, err = testCmd.Output()
+	// Use absolute path to run the version command to avoid Go's relative path execution security check
+	testCmd := exec.Command(installedPath, "version")
+	output, err := testCmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("erro ao executar 'dcm version': %w", err)
+		return fmt.Errorf("erro ao executar '%s version': %w\nSaída: %s", installedPath, err, string(output))
 	}
 
 	return nil

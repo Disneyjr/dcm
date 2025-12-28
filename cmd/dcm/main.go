@@ -15,7 +15,6 @@ func main() {
 
 	if len(args) == 0 {
 		messages.PrintHelp()
-		messages.ExitMessage()
 		return
 	}
 

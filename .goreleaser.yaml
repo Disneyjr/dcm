@@ -11,6 +11,8 @@ builds:
     binary: dcm
     env:
       - CGO_ENABLED=0
+    ldflags:
+      - -X github.com/Disneyjr/dcm/utils/messages.Version={{.Version}}
     goos:
       - linux
       - darwin

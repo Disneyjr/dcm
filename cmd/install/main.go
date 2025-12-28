@@ -45,12 +45,13 @@ func main() {
 
 		fmt.Printf("%s Encontrado: %s\n", utils.Colorize("green", "✅"), sourcePath)
 
+		var installedPath string
 		var installErr error
 		switch runtime.GOOS {
 		case "linux", "darwin":
-			installErr = commands.InstallLinuxMacOS(sourcePath)
+			installedPath, installErr = commands.InstallLinuxMacOS(sourcePath)
 		case "windows":
-			installErr = commands.InstallWindows(sourcePath)
+			installedPath, installErr = commands.InstallWindows(sourcePath)
 		default:
 			installErr = fmt.Errorf("SO não suportado: %s", runtime.GOOS)
 		}
@@ -60,7 +61,7 @@ func main() {
 			return
 		}
 
-		if err := commands.VerifyInstallation(); err != nil {
+		if err := commands.VerifyInstallation(installedPath); err != nil {
 			fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 			fmt.Printf("\n%s Tente executar manualmente:\n", utils.Colorize("yellow", "💡"))
 			fmt.Printf("  Linux/macOS: sudo mv dcm /usr/local/bin/ && sudo chmod +x /usr/local/bin/dcm\n")
