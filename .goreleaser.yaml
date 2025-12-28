@@ -58,5 +58,5 @@ checksum:
 
 release:
   github:
-    owner: DisneyJr
+    owner: Disneyjr
     name: dcm
