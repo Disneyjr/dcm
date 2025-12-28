@@ -18,7 +18,6 @@ func main() {
 		return
 	}
 
-	// Comandos que não precisam de workspace e não devem mostrar ExitMessage
 	if args[0] == "version" {
 		handleVersionCommand()
 		return
@@ -29,14 +28,18 @@ func main() {
 		return
 	}
 
-	// Para todos os outros comandos, mostrar ExitMessage ao final
-	defer messages.ExitMessage()
-
 	ws := workspace.NewWorkspace()
 	if err := workspace.LoadWorkspace(ws); err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		return
 	}
+
+	if args[0] == "validate" {
+		handleValidateCommand(ws)
+		return
+	}
+
+	defer messages.ExitMessage()
 
 	switch args[0] {
 	case "up":
@@ -59,9 +62,6 @@ func main() {
 
 	case "inspect":
 		handleInspectCommand(ws, args)
-
-	case "validate":
-		handleValidateCommand(ws)
 
 	default:
 		fmt.Printf("%s Comando desconhecido: %s\n", utils.Colorize("yellow", "⚠️"), args[0])
