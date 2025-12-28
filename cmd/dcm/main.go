@@ -21,12 +21,12 @@ func main() {
 
 	// Comandos que não precisam de workspace e não devem mostrar ExitMessage
 	if args[0] == "version" {
-		handleVersionCommand(nil, args)
+		handleVersionCommand()
 		return
 	}
 
 	if args[0] == "init" {
-		handleInitCommand(nil, args)
+		handleInitCommand()
 		return
 	}
 
@@ -47,22 +47,22 @@ func main() {
 		handleDownCommand(ws, args)
 
 	case "restart":
-		handleRestartCommand(ws, args)
+		handleRestartCommand(ws)
 
 	case "logs":
-		handleLogsCommand(ws, args)
+		handleLogsCommand(ws)
 
 	case "status":
-		handleStatusCommand(ws, args)
+		handleStatusCommand(ws)
 
 	case "list":
-		handleListCommand(ws, args)
+		handleListCommand(ws)
 
 	case "inspect":
 		handleInspectCommand(ws, args)
 
 	case "validate":
-		handleValidateCommand(ws, args)
+		handleValidateCommand(ws)
 
 	default:
 		fmt.Printf("%s Comando desconhecido: %s\n", utils.Colorize("yellow", "⚠️"), args[0])

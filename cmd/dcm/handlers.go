@@ -61,28 +61,28 @@ func handleDownCommand(ws *workspace.Workspace, args []string) {
 	}
 }
 
-func handleRestartCommand(ws *workspace.Workspace, args []string) {
+func handleRestartCommand(ws *workspace.Workspace) {
 	if err := commands.RestartAll(ws); err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		return
 	}
 }
 
-func handleLogsCommand(ws *workspace.Workspace, args []string) {
+func handleLogsCommand(ws *workspace.Workspace) {
 	if err := commands.LogsAll(ws); err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		return
 	}
 }
 
-func handleStatusCommand(ws *workspace.Workspace, args []string) {
+func handleStatusCommand(ws *workspace.Workspace) {
 	if err := commands.StatusAll(ws); err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		return
 	}
 }
 
-func handleListCommand(ws *workspace.Workspace, args []string) {
+func handleListCommand(ws *workspace.Workspace) {
 	commands.ListAll(ws)
 }
 
@@ -94,17 +94,17 @@ func handleInspectCommand(ws *workspace.Workspace, args []string) {
 	commands.InspectGroup(ws, args[1])
 }
 
-func handleValidateCommand(ws *workspace.Workspace, args []string) {
+func handleValidateCommand(ws *workspace.Workspace) {
 	commands.ValidateWorkspace(ws)
 }
 
-func handleInitCommand(ws *workspace.Workspace, args []string) {
+func handleInitCommand() {
 	if err := commands.InitWorkspace(); err != nil {
 		fmt.Printf("%s %v\n", utils.Colorize("red", "❌"), err)
 		return
 	}
 }
 
-func handleVersionCommand(ws *workspace.Workspace, args []string) {
+func handleVersionCommand() {
 	messages.VersionMessage()
 }
